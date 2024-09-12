@@ -17,7 +17,7 @@
   start,
   Np,
   rw.sd,
-  cooling.type = c("hyperbolic", "geometric"),
+  cooling.type = c("geometric", "hyperbolic"),
   cooling.fraction.50,
   block = FALSE,
   verbose = getOption("verbose"),
@@ -71,7 +71,7 @@ i.e., the manner and rate with which the intensity of the parameter perturbation
 \code{cooling.type} specifies the nature of the cooling schedule.
 See below (under \dQuote{Specifying the perturbations}) for more detail.}
 
-\item{block}{A logical variable determining whther to carry out block
+\item{block}{A logical variable determining whether to carry out block
 resampling of unit-specific parameters.}
 
 \item{verbose}{logical; if \code{TRUE}, diagnostic messages will be printed to the console.}
@@ -128,7 +128,7 @@ traces(mmp)
 \king2016
 }
 \seealso{
-\pkg{pomp}'s mif2 at \link[=mif2,pomp-method]{mif2},
+\pkg{pomp}'s mif2 at \link[pomp]{mif2},
 \link{panel_loglik}
 
 Other panelPomp workhorse functions: 

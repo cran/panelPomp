@@ -1,11 +1,13 @@
 
-R version 4.2.3 (2023-03-15) -- "Shortstop Beagle"
-Copyright (C) 2023 The R Foundation for Statistical Computing
-Platform: aarch64-apple-darwin20 (64-bit)
+R version 4.4.1 (2024-06-14) -- "Race for Your Life"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin20
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
 
 R is a collaborative project with many contributors.
 Type 'contributors()' for more information and
@@ -27,11 +29,11 @@ Type 'q()' to quit R.
 > pP2 <- list(shared=c(sigmaX=1,sigmaY=2),
 +             specific=matrix(c(0,0.1),nr=1,
 +                             dimnames=list(param="X.0",unit=c("rw1","rw2"))))
-> ppo <- panelPomp(unitobjects(ppo),shared=pP2$shared,specific=pP2$specific)
+> ppo <- panelPomp(unit_objects(ppo),shared=pP2$shared,specific=pP2$specific)
 > # other definitions from old test file
 > pg <- panelGompertz(U=3,N=5)
 > pgl <- as(pg,"list")
-> g <- pgl[[1]]; coef(g) <- c(pparams(pg)$sh, pparams(pg)$sp[,1])
+> g <- pgl[[1]]; coef(g) <- c(shared(pg), specific(pg)[,1])
 > pp <- panelPomp(list(g,g),shared=pg@shared,
 +                 specific=pg@specific[,1:2])
 > 
@@ -78,25 +80,40 @@ Type 'q()' to quit R.
 > ## test names,panelPomp-method
 > test(names(ppo),c("rw1","rw2"))
 [1] TRUE
-> ## test pparams,panelPomp-method
-> test(pparams(ppo),list(shared=ppo@shared,specific=ppo@specific))
+> ## test coef(..., format = 'list'),panelPomp-method
+> test(coef(ppo, format = 'list'),list(shared=ppo@shared,specific=ppo@specific))
 [1] TRUE
 > ## test pParams function
 > ## all sh
-> test(pParams(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
+> test(toParamList(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
 +                             value=TRUE,invert=TRUE)]),
 +      list(shared=ppo@shared,specific=array(numeric(0),dim=c(0,0))))
 [1] TRUE
 > ## all sp
 > test(list(shared=numeric(0),specific=ppo@specific),
-+      pParams(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
++      toParamList(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
 +                             value=TRUE)]))
 [1] TRUE
 > ## both sh & sp
-> test(pParams(coef(ppo)),list(shared=ppo@shared,specific=ppo@specific))
+> test(toParamList(coef(ppo)),list(shared=ppo@shared,specific=ppo@specific))
 [1] TRUE
-> ## test unitobjects,panelPomp-method
-> test(unitobjects(ppo),ppo@unit.objects)
+> 
+> # Test error message if toParamList used on data.frame / list
+> test(
++   wQuotes("Error : in ''toParamList'': ", "input is already a list.\n"),
++   toParamList(data.frame('par1' = 1, 'par2' = 2))
++ )
+[1] TRUE
+> 
+> # Test error message if toParamList used on matrix
+> test(
++   wQuotes("Error : in ''toParamList'': ", "input must be a vector.\n"),
++   toParamList(matrix(c(1, 2, 3)))
++ )
+[1] TRUE
+> 
+> ## test unit_objects,panelPomp-method
+> test(unit_objects(ppo),ppo@unit_objects)
 [1] TRUE
 > coef(ppo[["rw1"]])
 sigmaX sigmaY    X.0 
@@ -121,11 +138,11 @@ sigmaX sigmaY    X.0
 > 
 > 
 > ## as(,'list') returns list of units with parameters
-> test(as(pg,"list")[[1]]@data,pg@unit.objects[[1]]@data)
+> test(as(pg,"list")[[1]]@data,pg@unit_objects[[1]]@data)
 [1] TRUE
 > 
 > ## as(,'pompList')
-> test(as(pg,'pompList')[[1]]@data,pg@unit.objects[[1]]@data)
+> test(as(pg,'pompList')[[1]]@data,pg@unit_objects[[1]]@data)
 [1] TRUE
 > 
 > ## test as(,'data.frame')
@@ -136,7 +153,7 @@ sigmaX sigmaY    X.0
 > 
 > ## show
 > show(ppo)
-<object of class 'panelPomp'>
+<object of class ‘panelPomp’>
 panel of 2 units 
 parameter(s):
 $shared
@@ -149,19 +166,16 @@ param rw1 rw2
   X.0   0 0.1
 
 summary of first panel unit ("rw1"):
-<object of class 'pomp'>
-> show(panelPomp(unitobjects(ppo)))
-<object of class 'panelPomp'>
+<object of class ‘pomp’>
+> show(panelPomp(unit_objects(ppo)))
+<object of class ‘panelPomp’>
 panel of 2 units 
 parameter(s) unspecified
 summary of first panel unit ("rw1"):
-<object of class 'pomp'>
+<object of class ‘pomp’>
 > 
 > ## check whether all tests passed
 > all(get(eval(formals(test))$all))
 [1] TRUE
 > if (!all(get(eval(formals(test))$all))) stop("Not all tests passed!")
 > 
-> proc.time()
-   user  system elapsed 
-  0.794   0.209   1.383 

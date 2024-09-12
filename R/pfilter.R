@@ -11,13 +11,13 @@ NULL
 #' @section Methods:
 #' \describe{
 #'   \item{logLik}{Extracts the estimated log likelihood for the entire panel.}
-#'   \item{unitlogLik}{Extracts the estimated log likelihood for each panel unit.}
+#'   \item{unitLogLik}{Extracts the estimated log likelihood for each panel unit.}
 #'   }
 #' @references \arulampalam2002
 #'
 #' \breto2020
 #' @family panelPomp workhorse functions
-#' @seealso \pkg{pomp}'s pfilter at \link[=pfilter,pomp-method]{pfilter}, \link{panel_loglik}
+#' @seealso \pkg{pomp}'s pfilter at \link[pomp:pfilter]{pfilter}, \link{panel_loglik}
 NULL
 
 #' @rdname pfilter
@@ -49,7 +49,7 @@ pfilter.internal <- function(object, params, Np,
   for (unit in names(object)) {
     pfilterd.pomp.list[[unit]] <-
       pomp::pfilter(
-        object@unit.objects[[unit]],
+        object@unit_objects[[unit]],
         params = matrixpParams[,unit],
         Np = Np,
         ...
@@ -59,7 +59,7 @@ pfilter.internal <- function(object, params, Np,
   pfilter.internal.loglik <- sum(pfilter.internal.unit.logliks)
   new(
     Class = "pfilterd.ppomp",
-    unit.objects = pfilterd.pomp.list,
+    unit_objects = pfilterd.pomp.list,
     shared = params$shared,
     specific = params$specific,
     ploglik = pfilter.internal.loglik,
@@ -92,7 +92,7 @@ setMethod(
     object <- data # the argument name 'data' is fixed by pomp's generic
     ep <- wQuotes("in ''pfilter'': ")
     ## check for params format
-    if (!missing(params) && is.numeric(params)) params <- pParams(params)
+    if (!missing(params) && is.numeric(params)) params <- toParamList(params)
 
     if (!missing(shared) && !missing(specific) && !missing(params))
       stop(ep,wQuotes("specify either ''params'' only, ''params'' and ''shared'' ,",
@@ -100,12 +100,28 @@ setMethod(
 
     # Get starting parameter values from 'object,' 'start,' or 'params'
     if (missing(shared)){
-      if (!missing(params)) shared <- params$shared
-      else shared <- object@shared
+      if (!missing(params)) {
+        if (!is.null(params$shared)) {
+          shared <- params$shared
+        } else {
+          stop(
+            ep, wQuotes("''params'' must be a list containing ''shared'' and ''specific'' elements, or a named numeric vector"),
+            ".", call. = FALSE
+          )
+        }
+      } else shared <- object@shared
     }
     if (missing(specific)){
-      if (!missing(params)) specific <- params$specific
-      else specific <- object@specific
+      if (!missing(params)) {
+        if (!is.null(params$specific)) {
+          specific <- params$specific
+        } else {
+          stop(
+            ep, wQuotes("''params'' must be a list containing ''shared'' and ''specific'' elements, or a named numeric vector"),
+            ".", call. = FALSE
+          )
+        }
+      } else specific <- object@specific
     }
     if (!is.null(object@shared)){
       if (

@@ -23,7 +23,7 @@ NULL
 #' @param specific.start matrix with row parameter names and column unit names;
 #' the starting guess of the specific parameters.
 #' @param start A named numeric vector of parameters at which to start the IF2 procedure.
-#' @param block A logical variable determining whther to carry out block
+#' @param block A logical variable determining whether to carry out block
 #' resampling of unit-specific parameters.
 #' @param rw.sd An unevaluated expression of the form \code{quote(rw.sd())} to
 #' be used for all panel units. If a \code{list} of such expressions of the
@@ -40,7 +40,7 @@ NULL
 #'
 #' \king2016
 #' @family panelPomp workhorse functions
-#' @seealso \pkg{pomp}'s mif2 at \link[=mif2,pomp-method]{mif2},
+#' @seealso \pkg{pomp}'s mif2 at \link[pomp]{mif2},
 #' \link{panel_loglik}
 NULL
 
@@ -85,10 +85,10 @@ mif2.internal <- function (object, Nmif, start, Np, rw.sd, cooling.type,
   shnames <- names(start$shared)
   spnames <- rownames(start$specific)
 
-  if (!setequal(names(object@unit.objects),colnames(start$specific)))
+  if (!setequal(names(object@unit_objects),colnames(start$specific)))
     stop(ep,wQuotes("specific parameter column-names must match the names of the units"),
          call.=FALSE)
-  start$specific <- start$specific[,names(object@unit.objects),drop=FALSE]
+  start$specific <- start$specific[,names(object@unit_objects),drop=FALSE]
 
   ########################################################
   # Initialize objects
@@ -110,7 +110,7 @@ mif2.internal <- function (object, Nmif, start, Np, rw.sd, cooling.type,
     dimnames = list(
       variable = spnames,
       rep = NULL,
-      unit = names(unitobjects(object))
+      unit = names(unit_objects(object))
     )
   )
   # Initialize pconv.rec and pconv.rec.array
@@ -131,14 +131,14 @@ mif2.internal <- function (object, Nmif, start, Np, rw.sd, cooling.type,
       iteration = seq.int(.ndone, .ndone + Nmif),
       variable = c('unitLoglik',
         dimnames(start$specific)[[1]]),
-      unit = names(unitobjects(object))
+      unit = names(unit_objects(object))
     )
   )
   pconv.rec.array[1L, -1L, ] <- pparamArray[, 1L,]
   # Initialize output
   output <- vector(mode="list",length=U)
   # nameoutput
-  names(output) <- names(unitobjects(object))
+  names(output) <- names(unit_objects(object))
 
   ###########################################################
   # LOOP OVER MIF ITERATIONS AND PANEL UNITS
@@ -206,7 +206,7 @@ mif2.internal <- function (object, Nmif, start, Np, rw.sd, cooling.type,
   # Extract loglikelihoods
   unit.logliks <- sapply(X = output, FUN = logLik)
   ploglik <- sum(unit.logliks)
-  # create pParams slot from last mif iteration values in pconv.rec
+  # create parameter list from last mif iteration values in pconv.rec
   pParams <- list()
   pParams$shared <- pconv.rec[nrow(pconv.rec), -1L]
   # Here, we want to drop the iteration dimension but, if there was only one
@@ -227,7 +227,7 @@ mif2.internal <- function (object, Nmif, start, Np, rw.sd, cooling.type,
     new(
       Class = "mif2d.ppomp",
       # panelPomp
-      unit.objects = output,
+      unit_objects = output,
       shared = pParams$shared,
       specific = pParams$specific,
       # pfilterd.ppomp
@@ -262,7 +262,7 @@ setMethod(
   "mif2",
   signature=signature(data="panelPomp"),
   definition = function (data, Nmif = 1, shared.start, specific.start, start,
-                         Np, rw.sd, cooling.type = c("hyperbolic", "geometric"),
+                         Np, rw.sd, cooling.type = c("geometric", "hyperbolic"),
                          cooling.fraction.50, block = FALSE,
                          verbose = getOption("verbose"), ...) {
     object <- data
@@ -275,10 +275,13 @@ setMethod(
     if (missing(start)) {
       start <- list(shared=object@shared,specific=object@specific)
     } else {
-     if (is.numeric(start)) start <- pParams(start)
+     if (is.numeric(start)) start <- toParamList(start)
     }
     if (missing(shared.start)) shared.start <- start$shared
     if (missing(specific.start)) specific.start <- start$specific
+
+    if (length(intersect(names(shared.start), rownames(specific.start))) > 0)
+      stop(wQuotes(ep, "a parameter cannot be both shared and specific!", et), call. = FALSE)
 
     if (missing(Np)) {
       stop(wQuotes(ep,"Missing ''Np'' argument.",et),call.=FALSE)
@@ -297,7 +300,7 @@ setMethod(
       start=list(shared=shared.start,specific=specific.start),
       Np=Np,
       rw.sd=rw.sd,
-      cooling.type=cooling.type,
+      cooling.type=match.arg(cooling.type),
       cooling.fraction.50=cooling.fraction.50,
       verbose=verbose,
       block=block,
@@ -329,10 +332,14 @@ setMethod(
    if (missing(start)) {
       start <- list(shared=object@shared,specific=object@specific)
     } else {
-      if (is.numeric(start)) start <- pParams(start)
+      if (is.numeric(start)) start <- toParamList(start)
     }
     if (missing(shared.start)) shared.start <- start$shared
     if (missing(specific.start)) specific.start <- start$specific
+
+    if (length(intersect(names(shared.start), rownames(specific.start))) > 0)
+      stop(wQuotes(ep, "a parameter cannot be both shared and specific!", et), call. = FALSE)
+
     if (missing(Np)) Np <- object@Np
     if (missing(rw.sd)) rw.sd <- object@prw.sd
     if (missing(cooling.type)) cooling.type <- object@cooling.type

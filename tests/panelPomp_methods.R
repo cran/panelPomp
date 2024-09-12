@@ -10,11 +10,11 @@ ppo <- panelRandomWalk(U=2,N=5)
 pP2 <- list(shared=c(sigmaX=1,sigmaY=2),
             specific=matrix(c(0,0.1),nr=1,
                             dimnames=list(param="X.0",unit=c("rw1","rw2"))))
-ppo <- panelPomp(unitobjects(ppo),shared=pP2$shared,specific=pP2$specific)
+ppo <- panelPomp(unit_objects(ppo),shared=pP2$shared,specific=pP2$specific)
 # other definitions from old test file
 pg <- panelGompertz(U=3,N=5)
 pgl <- as(pg,"list")
-g <- pgl[[1]]; coef(g) <- c(pparams(pg)$sh, pparams(pg)$sp[,1])
+g <- pgl[[1]]; coef(g) <- c(shared(pg), specific(pg)[,1])
 pp <- panelPomp(list(g,g),shared=pg@shared,
                 specific=pg@specific[,1:2])
 
@@ -49,21 +49,34 @@ test(coef(ppo) <- ppo@shared,err)
 test(length(ppo),2L)
 ## test names,panelPomp-method
 test(names(ppo),c("rw1","rw2"))
-## test pparams,panelPomp-method
-test(pparams(ppo),list(shared=ppo@shared,specific=ppo@specific))
+## test coef(..., format = 'list'),panelPomp-method
+test(coef(ppo, format = 'list'),list(shared=ppo@shared,specific=ppo@specific))
 ## test pParams function
 ## all sh
-test(pParams(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
+test(toParamList(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
                             value=TRUE,invert=TRUE)]),
      list(shared=ppo@shared,specific=array(numeric(0),dim=c(0,0))))
 ## all sp
 test(list(shared=numeric(0),specific=ppo@specific),
-     pParams(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
+     toParamList(coef(ppo)[grep("^.+\\[.+?\\]$",names(coef(ppo)),perl=TRUE,
                             value=TRUE)]))
 ## both sh & sp
-test(pParams(coef(ppo)),list(shared=ppo@shared,specific=ppo@specific))
-## test unitobjects,panelPomp-method
-test(unitobjects(ppo),ppo@unit.objects)
+test(toParamList(coef(ppo)),list(shared=ppo@shared,specific=ppo@specific))
+
+# Test error message if toParamList used on data.frame / list
+test(
+  wQuotes("Error : in ''toParamList'': ", "input is already a list.\n"),
+  toParamList(data.frame('par1' = 1, 'par2' = 2))
+)
+
+# Test error message if toParamList used on matrix
+test(
+  wQuotes("Error : in ''toParamList'': ", "input must be a vector.\n"),
+  toParamList(matrix(c(1, 2, 3)))
+)
+
+## test unit_objects,panelPomp-method
+test(unit_objects(ppo),ppo@unit_objects)
 coef(ppo[["rw1"]])
 ## test print function (tested in 'print-results.Rout.save')
 ## test show function (tested in 'print-results.Rout.save')
@@ -79,10 +92,10 @@ test(lapply(as(window(ppo[1],start=1,end=2),"list"),time),list(rw1=c(1,2)))
 
 
 ## as(,'list') returns list of units with parameters
-test(as(pg,"list")[[1]]@data,pg@unit.objects[[1]]@data)
+test(as(pg,"list")[[1]]@data,pg@unit_objects[[1]]@data)
 
 ## as(,'pompList')
-test(as(pg,'pompList')[[1]]@data,pg@unit.objects[[1]]@data)
+test(as(pg,'pompList')[[1]]@data,pg@unit_objects[[1]]@data)
 
 ## test as(,'data.frame')
 test(dim(as(pg,"data.frame")),c(15L,4L))
@@ -90,7 +103,7 @@ test(names(as(pg,"data.frame")),c("t","Y","X","unit"))
 
 ## show
 show(ppo)
-show(panelPomp(unitobjects(ppo)))
+show(panelPomp(unit_objects(ppo)))
 
 ## check whether all tests passed
 all(get(eval(formals(test))$all))

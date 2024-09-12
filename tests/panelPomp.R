@@ -8,7 +8,7 @@ test <- function(expr1,expr2,all="TESTS_PASS",env=parent.frame(),...)
 pg <- panelGompertz(U=5,N=3)
 pg <- panelPomp(pg[1:3])
 pgl <- as(pg,"list")
-g <- pgl[[1]]; coef(g) <- c(pparams(pg)$sh, pparams(pg)$sp[,1])
+g <- pgl[[1]]; coef(g) <- c(shared(pg), specific(pg)[,1])
 coef(g)
 coef(pg)
 coef(panelPomp(pg,shared=NULL))
@@ -34,10 +34,10 @@ try(panelPomp(pgl[[1]]))
 
 ppo <- panelRandomWalk(U=2,N=5)
 pos <- as(ppo,"list")
-pPs <- pparams(ppo)
+pPs <- coef(ppo, format = 'list')
 all_sh <- c(pPs$sh,get_col(pPs$sp,col=1,rows=seq_along(dim(pPs$sp)[1])))
 
-noparams <- lapply(unitobjects(ppo),pomp,params=numeric(0))
+noparams <- lapply(unit_objects(ppo),pomp,params=numeric(0))
 
 
 ep <- "Error : in ''panelPomp'': "
@@ -57,7 +57,7 @@ test(wQuotes(ep,"specify EITHER ''params'' OR ''shared'' and/or ''specific''.",
 test(as(panelPomp(pos,params=coef(ppo)),"data.frame"),
      as(ppo,"data.frame"))
 # noparams
-test(obs(unitobjects(panelPomp(noparams))[[1]]),
+test(obs(unit_objects(panelPomp(noparams))[[1]]),
      obs(lapply(pos,`coef<-`,value=numeric(0))[[1]]) )
 # someparams
 test(as(panelPomp(ppo,params=coef(ppo)),"data.frame"),

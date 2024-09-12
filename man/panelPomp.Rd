@@ -58,7 +58,7 @@ construct the corresponding \code{panelPomp} object.
 \examples{
 ## recreate the 'panelRandomWalk()' example
 prw <- panelRandomWalk()
-prw2 <- panelPomp(unitobjects(prw),params=coef(prw))
+prw2 <- panelPomp(unit_objects(prw),params=coef(prw))
 identical(prw,prw2) # TRUE
 }
 \references{
@@ -67,7 +67,7 @@ identical(prw,prw2) # TRUE
 \king2016
 }
 \seealso{
-\pkg{pomp}'s constructor at \link[=pomp]{pomp}
+\pkg{pomp}'s constructor at \link[pomp]{pomp}
 
 Other panelPomp workhorse functions: 
 \code{\link{mif2}()},
