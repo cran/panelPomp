@@ -1,7 +1,7 @@
 Package: panelPomp
 Type: Package
 Title: Inference for Panel Partially Observed Markov Processes
-Version: 1.6.0.0
+Version: 1.7.0.0
 Authors@R: c(person(given="Carles",family="Breto",role="aut",email="carles.breto@uv.es",comment=c(ORCID="0000-0003-4695-4902")),
 	person(given=c("Edward","L."),family="Ionides",role="aut",comment=c(ORCID="0000-0002-4190-0174")),
 	person(given=c("Aaron","A."),family="King",role="aut",comment=c(ORCID="0000-0001-6159-3207")),
@@ -24,12 +24,14 @@ Suggests: knitr, rmarkdown, bookdown
 VignetteBuilder: knitr
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2025-04-03 19:33:36 UTC; jeswheel
-Author: Carles Breto [aut] (<https://orcid.org/0000-0003-4695-4902>),
-  Edward L. Ionides [aut] (<https://orcid.org/0000-0002-4190-0174>),
-  Aaron A. King [aut] (<https://orcid.org/0000-0001-6159-3207>),
-  Jesse Wheeler [aut, cre] (<https://orcid.org/0000-0003-3941-3884>),
+Packaged: 2025-05-09 14:00:43 UTC; jeswheel
+Author: Carles Breto [aut] (ORCID: <https://orcid.org/0000-0003-4695-4902>),
+  Edward L. Ionides [aut] (ORCID:
+    <https://orcid.org/0000-0002-4190-0174>),
+  Aaron A. King [aut] (ORCID: <https://orcid.org/0000-0001-6159-3207>),
+  Jesse Wheeler [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-3941-3884>),
   Aaron Abkemeier [ctb]
 Maintainer: Jesse Wheeler <jeswheel@umich.edu>
 Repository: CRAN
-Date/Publication: 2025-04-03 20:00:01 UTC
+Date/Publication: 2025-05-09 14:40:02 UTC

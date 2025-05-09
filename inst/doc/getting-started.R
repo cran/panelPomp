@@ -55,10 +55,14 @@ specific(panelMod2) <- matrix(
 specific(panelMod2)
 
 ## ----errorShared, error=TRUE--------------------------------------------------
+try({
 shared(panelMod2) <- c("foo" = 1)
+})
 
 ## ----errorSpecific, error=TRUE------------------------------------------------
+try({
 specific(panelMod2) <- c("tau[unit6]" = 1)
+})
 
 ## ----rinit--------------------------------------------------------------------
 rinit_u <- pomp::Csnippet(

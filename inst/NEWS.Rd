@@ -1,9 +1,29 @@
 \name{NEWS}
 \title{News for the \pkg{panelPomp} package}
+\section{Changes in \pkg{panelPomp} version 1.7.0.0}{
+  \itemize{
+    \item{Internal updates for \code{plot} warning messages and tests.}
+    \item{Release matching CRAN version 1.7.0.0}
+  }
+}
+\section{Changes in \pkg{panelPomp} version 1.6.1.0}{
+  \itemize{
+    \item{Modified the \code{plot} function to allow subsetting of units. This function works for objects of class \code{panelPomp}, \code{pfilterd.ppomp}, and \code{mif2d.ppomp}}
+  }
+}
 \section{Changes in \pkg{panelPomp} version 1.6.0.0}{
   \itemize{
-    \item Removed deprecated functions.
+    \item{Removed deprecated functions.}
+    \item{Release matching CRAN version 1.6.0.0}
+  }
+}
+\section{Changes in \pkg{panelPomp} version 1.5.0.2}{
+  \itemize{
     \item Created internal functions for in-place modification of \code{pparamArray} within the \code{mif2} function. When the number of units and particles is large, this change results in substantial improvements in computational speed by avoiding unecessary memory creation and garbage collection.
+  }
+}
+\section{Changes in \pkg{panelPomp} version 1.5.0.1}{
+  \itemize{
     \item Removed unused variables.
   }
 }
